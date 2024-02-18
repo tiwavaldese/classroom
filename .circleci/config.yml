@@ -1,0 +1,32 @@
+version: 2.1
+
+# Define the jobs we want to run for this project
+jobs:
+  build_test:
+    docker:
+      - image: circleci/node:32
+    steps:
+      - checkout
+      - run: 
+          name: install npm dependencies
+          commands: 
+            npm install --save
+  build_docker_image:
+    docker:
+      - image: circleci/node:32
+     steps:
+      - checkout
+      - setup_remote_docker:
+          doocker_layer_caching: false
+      - run: 
+          name: Build Docker image
+          commands: 
+            docker build -t nodejswebapp1 -t adijaiswal/nodejswebapp1:latest - 
+            echo  $DOCKER_PASSWORD | docker login -u adijaiswal --password-stdin
+            docker push adijaiswal/nodejswebapp1:latest
+
+workflows:
+  build_test:
+    jobs:
+    - build_test
+      - build_docker_image
